@@ -1,3 +1,4 @@
+const moment = require('moment-timezone');
 const { SlashCommandBuilder } = require('discord.js');
 const { CronJob } = require('cron');
 const schedules = new Map();
@@ -46,28 +47,33 @@ module.exports = {
     }
 
     const [hour, minute] = time.split(':').map(Number);
-    const scheduleTime = new Date(year, month - 1, day, hour, minute);
+    const scheduleTime = moment.tz(
+      { year, month: month - 1, day, hour, minute },
+      'Asia/Seoul'
+    ); // 원하는 시간대로 설정
     const scheduleId = Date.now().toString();
     const channelSchedules = schedules.get(channelId);
     channelSchedules.set(scheduleId, {
-      date: `${year}-${month}-${day}`,
-      time,
+      date: scheduleTime.format('YYYY-MM-DD'),
+      time: scheduleTime.format('HH:mm'),
       content,
       jobs: [],
     });
 
     // 현재 시간보다 미래의 시간인지 확인
-    if (scheduleTime <= new Date()) {
+    if (scheduleTime <= moment()) {
       return interaction.reply('과거의 시간으로 일정을 설정할 수 없습니다.');
     }
 
     // 30분 전 알림
-    const reminderTime = new Date(scheduleTime.getTime() - 30 * 60000);
-    if (reminderTime > new Date()) {
-      const reminderJob = new CronJob(reminderTime, async () => {
+    const reminderTime = scheduleTime.clone().subtract(30, 'minutes');
+    if (reminderTime > moment()) {
+      const reminderJob = new CronJob(reminderTime.toDate(), async () => {
         const channel = await interaction.client.channels.fetch(channelId);
         channel.send(
-          `30분 후 일정이 있습니다: ${year}-${month}-${day} ${time} - ${content}`
+          `30분 후 일정이 있습니다: ${scheduleTime.format(
+            'YYYY-MM-DD HH:mm'
+          )} - ${content}`
         );
       });
       reminderJob.start();
@@ -78,22 +84,24 @@ module.exports = {
     const morningJob = new CronJob(`0 10 ${day} ${month} *`, async () => {
       const channel = await interaction.client.channels.fetch(channelId);
       channel.send(
-        `오늘 일정이 있습니다: ${year}-${month}-${day} ${time} - ${content}`
+        `오늘 일정이 있습니다: ${scheduleTime.format(
+          'YYYY-MM-DD HH:mm'
+        )} - ${content}`
       );
     });
     morningJob.start();
     channelSchedules.get(scheduleId).jobs.push(morningJob);
 
     // 일정 시간 알림 및 삭제
-    const mainJob = new CronJob(scheduleTime, async () => {
+    const mainJob = new CronJob(scheduleTime.toDate(), async () => {
       const channel = await interaction.client.channels.fetch(channelId);
       channel.send(
-        `일정 시간입니다: ${year}-${month}-${day} ${time} - ${content}`
+        `일정 시간입니다: ${scheduleTime.format(
+          'YYYY-MM-DD HH:mm'
+        )} - ${content}`
       );
-
       // 모든 job 중지
       channelSchedules.get(scheduleId).jobs.forEach((job) => job.stop());
-
       // 일정 삭제
       channelSchedules.delete(scheduleId);
     });
@@ -101,7 +109,9 @@ module.exports = {
     channelSchedules.get(scheduleId).jobs.push(mainJob);
 
     await interaction.reply(
-      `일정이 추가되었습니다: ${year}-${month}-${day} ${time} - ${content}`
+      `일정이 추가되었습니다: ${scheduleTime.format(
+        'YYYY-MM-DD HH:mm'
+      )} - ${content}`
     );
   },
 };
