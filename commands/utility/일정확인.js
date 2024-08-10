@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
-const schedules = require('./일정').schedules;
+const { schedules } = require('./일정');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -7,20 +8,31 @@ module.exports = {
     .setDescription('현재 등록된 일정을 확인합니다.'),
   async execute(interaction) {
     const channelId = interaction.channelId;
+    const channelSchedules = schedules.get(channelId);
 
-    if (!schedules.has(channelId) || schedules.get(channelId).size === 0) {
-      return interaction.reply('이 채널에는 등록된 일정이 없습니다.');
+    if (!channelSchedules || channelSchedules.size === 0) {
+      return interaction.reply('현재 등록된 일정이 없습니다.');
     }
 
-    const channelSchedules = schedules.get(channelId);
-    let replyMessage = '현재 등록된 일정:\n';
+    const embed = new EmbedBuilder()
+      .setColor('#00FF00')
+      .setTitle('📅 현재 등록된 일정')
+      .setTimestamp()
+      .setFooter({
+        text: '춘식이봇',
+        iconURL:
+          'https://img.danawa.com/prod_img/500000/876/390/img/14390876_1.jpg?shrink=330:*&_v=20210604164612',
+      });
 
-    let index = 1; // 등록번호를 1부터 시작
+    let index = 1;
     channelSchedules.forEach((schedule, id) => {
-      replyMessage += `\n**등록번호**: ${index}\n**날짜**: ${schedule.date}\n**시간**: ${schedule.time}\n**내용**: ${schedule.content}\n`;
+      embed.addFields({
+        name: `등록번호: ${index}`,
+        value: `내용: ${schedule.content}\n시간: ${schedule.date} ${schedule.time}`,
+      });
       index++;
     });
 
-    await interaction.reply(replyMessage);
+    await interaction.reply({ embeds: [embed] });
   },
 };

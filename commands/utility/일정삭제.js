@@ -1,10 +1,11 @@
 const { SlashCommandBuilder } = require('discord.js');
-const schedules = require('./일정').schedules;
+const { schedules } = require('./일정');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('일정삭제')
-    .setDescription('등록된 일정을 삭제합니다.')
+    .setDescription('일정을 삭제합니다.')
     .addIntegerOption((option) =>
       option
         .setName('등록번호')
@@ -31,27 +32,19 @@ module.exports = {
 
     // 모든 job 중지
     schedule.jobs.forEach((job) => job.stop());
-
-    // 일정 삭제
     channelSchedules.delete(scheduleId);
 
-    try {
-      await interaction.reply(
-        `일정이 삭제되었습니다: ${schedule.date} ${schedule.time} - ${schedule.content}`
-      );
-    } catch (error) {
-      console.error(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: 'There was an error while executing this command!',
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: 'There was an error while executing this command!',
-          ephemeral: true,
-        });
-      }
-    }
+    const embed = new EmbedBuilder()
+      .setColor('#FF0000')
+      .setTitle('🗑️ 일정 삭제 완료')
+      .setDescription(`일정 등록번호: ${index + 1}가 삭제되었습니다.`)
+      .setTimestamp()
+      .setFooter({
+        text: '춘식이봇',
+        iconURL:
+          'https://img.danawa.com/prod_img/500000/876/390/img/14390876_1.jpg?shrink=330:*&_v=20210604164612',
+      });
+
+    await interaction.reply({ embeds: [embed] });
   },
 };
