@@ -4,11 +4,12 @@
   "description": "일정 알림을 도와주는 디스코드 봇",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "main": "index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ahrrrl/discord-chunsicBot.git"
+    "url": "https://github.com/ahrrrl/discord-chunsicBot"
   },
   "keywords": [
     "discord-bot"
@@ -18,5 +19,13 @@
   "bugs": {
     "url": "https://github.com/ahrrrl/discord-chunsicBot/issues"
   },
-  "homepage": "https://github.com/ahrrrl/discord-chunsicBot#readme"
+  "dependencies": {
+    "cron": "^3.1.7",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "node-schedule": "^2.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.8.0"
+  }
 }
