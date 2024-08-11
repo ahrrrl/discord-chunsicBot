@@ -1,5 +1,5 @@
 const { REST, Routes } = require('discord.js');
-const { DISCORD_TOKEN, CLIENT_ID } = process.env;
+const { DISCORD_TOKEN, DISCORD_CLIENT_ID } = process.env;
 const fs = require('fs');
 const path = require('path');
 
@@ -21,15 +21,19 @@ const rest = new REST({ version: '10' }).setToken(DISCORD_TOKEN);
 
     // 기존 커맨드 삭제
     const currentCommands = await rest.get(
-      Routes.applicationCommands(CLIENT_ID)
+      Routes.applicationCommands(DISCORD_CLIENT_ID)
     );
 
     for (const command of currentCommands) {
-      await rest.delete(Routes.applicationCommand(CLIENT_ID, command.id));
+      await rest.delete(
+        Routes.applicationCommand(DISCORD_CLIENT_ID, command.id)
+      );
     }
 
     // 새로운 커맨드 등록
-    await rest.put(Routes.applicationCommands(CLIENT_ID), { body: commands });
+    await rest.put(Routes.applicationCommands(DISCORD_CLIENT_ID), {
+      body: commands,
+    });
 
     console.log('Successfully reloaded application (/) commands.');
   } catch (error) {
