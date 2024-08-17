@@ -79,6 +79,15 @@ module.exports = {
           const delay = alarmTime.diff(moment());
           setTimeout(async () => {
             const channel = await interaction.client.channels.fetch(channelId);
+
+            // 일정 내용에서 @사용자아이디 추출
+            const mentionRegex = /<@!?(\d+)>/g;
+            let mentions = [];
+            let match;
+            while ((match = mentionRegex.exec(content)) !== null) {
+              mentions.push(match[0]);
+            }
+
             const embed = new EmbedBuilder()
               .setColor('#FFA500')
               .setTitle('⏰ 알람')
@@ -87,7 +96,9 @@ module.exports = {
                 name: '일정 시간',
                 value: `${scheduleTime.format('YYYY-MM-DD HH:mm')}`,
               });
-            await channel.send({ embeds: [embed] });
+
+            const userMentions = mentions.join(' ');
+            await channel.send({ content: userMentions, embeds: [embed] });
           }, delay);
         }
       });
@@ -99,6 +110,9 @@ module.exports = {
       console.log(`일정 ${scheduleId}가 자동으로 삭제되었습니다.`);
     }, deleteDelay);
 
-    await interaction.reply('일정이 추가되었습니다.');
+    await interaction.reply({
+      content: '일정이 추가되었습니다.',
+      ephemeral: true,
+    });
   },
 };
