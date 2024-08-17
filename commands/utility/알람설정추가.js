@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { alarmSettings } = require('./일정');
-const moment = require('moment-timezone');
+const AlarmSetting = require('../../models/AlarmSetting');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -29,14 +28,13 @@ module.exports = {
     const time = interaction.options.getString('시간');
     const channelId = interaction.channelId;
 
-    if (!alarmSettings.has(channelId)) {
-      alarmSettings.set(channelId, []);
-    }
-
-    alarmSettings.get(channelId).push({
+    const newAlarmSetting = new AlarmSetting({
+      channelId,
       type,
       time,
     });
+
+    await newAlarmSetting.save();
 
     const embed = new EmbedBuilder()
       .setColor('#00FF00')
@@ -54,7 +52,7 @@ module.exports = {
       .setFooter({
         text: '춘식이봇',
         iconURL:
-          'https://img.danawa.com/prod_img/500000/876/390/img/14390876_1.jpg?shrink=330:*&_v=20210604164612',
+          'https://chunsic-bot.vercel.app/_next/image?url=%2Fchunsic-logo.png&w=48&q=75',
       });
 
     await interaction.reply({ embeds: [embed], ephemeral: true });

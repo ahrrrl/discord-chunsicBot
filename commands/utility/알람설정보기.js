@@ -4,11 +4,8 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
 } = require('discord.js');
-const { alarmSettings } = require('./일정');
+const AlarmSetting = require('../../models/AlarmSetting');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -16,10 +13,13 @@ module.exports = {
     .setDescription('설정된 알람을 확인합니다.'),
   async execute(interaction) {
     const channelId = interaction.channelId;
-    const channelAlarms = alarmSettings.get(channelId);
+    const channelAlarms = await AlarmSetting.find({ channelId });
 
     if (!channelAlarms || channelAlarms.length === 0) {
-      return interaction.reply('현재 설정된 알람이 없습니다.');
+      return interaction.reply({
+        content: '현재 설정된 알람이 없습니다.',
+        ephemeral: true,
+      });
     }
 
     const embed = new EmbedBuilder()
@@ -29,7 +29,7 @@ module.exports = {
       .setFooter({
         text: '춘식이봇',
         iconURL:
-          'https://img.danawa.com/prod_img/500000/876/390/img/14390876_1.jpg?shrink=330:*&_v=20210604164612',
+          'https://chunsic-bot.vercel.app/_next/image?url=%2Fchunsic-logo.png&w=48&q=75',
       });
 
     channelAlarms.forEach((alarm, index) => {

@@ -4,22 +4,22 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
 } = require('discord.js');
-const { schedules } = require('./일정');
+const Schedule = require('../../models/Schedule');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('일정확인')
+    .setName('일정보기')
     .setDescription('등록된 일정을 확인합니다.'),
   async execute(interaction) {
     const channelId = interaction.channelId;
-    const channelSchedules = schedules.get(channelId);
+    const schedules = await Schedule.find({ channelId });
 
-    if (!channelSchedules || channelSchedules.size === 0) {
-      return interaction.reply('현재 등록된 일정이 없습니다.');
+    if (!schedules || schedules.length === 0) {
+      return interaction.reply({
+        content: '현재 등록된 일정이 없습니다.',
+        ephemeral: true,
+      });
     }
 
     const embed = new EmbedBuilder()
@@ -29,17 +29,15 @@ module.exports = {
       .setFooter({
         text: '춘식이봇',
         iconURL:
-          'https://img.danawa.com/prod_img/500000/876/390/img/14390876_1.jpg?shrink=330:*&_v=20210604164612',
+          'https://chunsic-bot.vercel.app/_next/image?url=%2Fchunsic-logo.png&w=48&q=75',
       });
 
-    Array.from(channelSchedules.entries()).forEach(
-      ([scheduleId, schedule], index) => {
-        embed.addFields({
-          name: `일정 ${index + 1}`,
-          value: `날짜: ${schedule.date}\n시간: ${schedule.time}\n내용: ${schedule.content}`,
-        });
-      }
-    );
+    schedules.forEach((schedule, index) => {
+      embed.addFields({
+        name: `일정 ${index + 1}`,
+        value: `날짜: ${schedule.date}\n시간: ${schedule.time}\n내용: ${schedule.content}`,
+      });
+    });
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()

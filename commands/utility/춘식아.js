@@ -11,7 +11,7 @@ module.exports = {
       .setTitle('안녕하세요, 주인님!')
       .setDescription(
         `저는 주인님의 충실한 하인 춘식이봇입니다. 주인님을 위해 다음과 같은 명령어들을 수행할 수 있습니다:
-        \n- /일정추가: 일정을 추가합니다.
+        \n- /일정보기: 일정을 추가합니다.
         \n- /일정삭제: 일정을 삭제합니다.
         \n- /일정확인: 일정을 목록으로 보여줍니다. 여기서 또한 일정을 삭제할 수 있습니다.
         \n- /알람설정추가: 일정 알람을 추가합니다.
@@ -23,7 +23,7 @@ module.exports = {
       .setFooter({
         text: '춘식이봇',
         iconURL:
-          'https://img.danawa.com/prod_img/500000/876/390/img/14390876_1.jpg?shrink=330:*&_v=20210604164612',
+          'https://chunsic-bot.vercel.app/_next/image?url=%2Fchunsic-logo.png&w=48&q=75',
       });
 
     await interaction.reply({ embeds: [embed], ephemeral: true });
