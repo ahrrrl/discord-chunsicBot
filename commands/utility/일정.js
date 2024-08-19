@@ -30,6 +30,26 @@ module.exports = {
     const time = interaction.options.getString('시간');
     const content = interaction.options.getString('내용');
     const channelId = interaction.channelId;
+
+    // 날짜 형식 검증
+    const dateRegex = /^(?:\d{2}-\d{2}|\d{4}-\d{2}-\d{2})$/;
+    if (!dateRegex.test(date)) {
+      return interaction.reply({
+        content:
+          '날짜 형식이 잘못되었습니다. MM-DD 또는 YYYY-MM-DD 형식으로 입력해주세요.',
+        ephemeral: true,
+      });
+    }
+
+    // 시간 형식 검증
+    const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+    if (!timeRegex.test(time)) {
+      return interaction.reply({
+        content: '시간 형식이 잘못되었습니다. HH:MM 형식으로 입력해주세요.',
+        ephemeral: true,
+      });
+    }
+
     const dateParts = date.split('-').map(Number);
     let year, month, day;
     if (dateParts.length === 2) {
@@ -37,20 +57,22 @@ module.exports = {
       [month, day] = dateParts;
     } else if (dateParts.length === 3) {
       [year, month, day] = dateParts;
-    } else {
-      return interaction.reply(
-        '날짜 형식이 잘못되었습니다. MM-DD 또는 YYYY-MM-DD 형식으로 입력해주세요.'
-      );
     }
+
     const [hour, minute] = time.split(':').map(Number);
     const scheduleTime = moment.tz(
       { year, month: month - 1, day, hour, minute },
       'Asia/Seoul'
     ); // 원하는 시간대로 설정
+
     // 현재 시간보다 미래의 시간인지 확인
     if (scheduleTime <= moment()) {
-      return interaction.reply('과거의 시간으로 일정을 설정할 수 없습니다.');
+      return interaction.reply({
+        content: '과거의 시간으로 일정을 설정할 수 없습니다.',
+        ephemeral: true,
+      });
     }
+
     const scheduleId = Date.now().toString();
     const newSchedule = new Schedule({
       channelId,
@@ -61,6 +83,7 @@ module.exports = {
       jobs: [],
     });
     await newSchedule.save();
+
     const channelAlarms = await AlarmSetting.find({ channelId });
     if (channelAlarms) {
       channelAlarms.forEach(async (alarm) => {
