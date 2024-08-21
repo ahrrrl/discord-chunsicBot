@@ -32,7 +32,7 @@ module.exports = {
     const channelId = interaction.channelId;
 
     // 날짜 형식 검증
-    const dateRegex = /^(?:\d{2}-\d{2}|\d{4}-\d{2}-\d{2})$/;
+    const dateRegex = /^(?:\d{1,2}-\d{1,2}|\d{4}-\d{1,2}-\d{1,2})$/;
     if (!dateRegex.test(date)) {
       return interaction.reply({
         content:

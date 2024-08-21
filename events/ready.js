@@ -17,8 +17,11 @@ module.exports = {
         'Asia/Seoul'
       );
 
+      const channelId = schedule.channelId;
+      const content = schedule.content;
+
       const channelAlarms = await AlarmSetting.find({
-        channelId: schedule.channelId,
+        channelId,
       });
       if (channelAlarms) {
         channelAlarms.forEach(async (alarm) => {
@@ -35,7 +38,6 @@ module.exports = {
 
           if (alarmTime > moment()) {
             const delay = alarmTime.diff(moment());
-            const content = schedule.content;
             setTimeout(async () => {
               const channel = await client.channels.fetch(schedule.channelId);
 
