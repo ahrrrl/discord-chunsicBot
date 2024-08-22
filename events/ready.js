@@ -42,7 +42,7 @@ module.exports = {
               const channel = await client.channels.fetch(schedule.channelId);
 
               // 일정 내용에서 @사용자아이디 추출
-              const mentionRegex = /<@!?(\d+)>/g;
+              const mentionRegex = /<@!?(\d+)>|<@&(\d+)>/g;
               let mentions = [];
               let match;
               while ((match = mentionRegex.exec(content)) !== null) {
