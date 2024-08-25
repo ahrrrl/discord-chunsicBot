@@ -1,14 +1,14 @@
-const {
+import {
   Events,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
   ActionRowBuilder,
-} = require('discord.js');
-const Schedule = require('../models/Schedule');
-const AlarmSetting = require('../models/AlarmSetting');
+} from 'discord.js';
+import Schedule from '../models/Schedule.js';
+import AlarmSetting from '../models/AlarmSetting.js';
 
-module.exports = {
+export default {
   name: Events.InteractionCreate,
   async execute(interaction) {
     if (interaction.isChatInputCommand()) {

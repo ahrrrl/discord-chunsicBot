@@ -1,11 +1,13 @@
 {
   "name": "discord-bot",
   "version": "1.0.0",
+  "type": "module",
   "description": "일정 알림을 도와주는 디스코드 봇",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "main": "index.js"
+    "main": "index.js",
+    "deploy": "node deploy-commands.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +27,8 @@
     "dotenv": "^16.4.5",
     "moment-timezone": "^0.5.45",
     "mongodb": "^6.8.0",
-    "mongoose": "^8.5.3"
+    "mongoose": "^8.5.3",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "eslint": "^9.8.0"

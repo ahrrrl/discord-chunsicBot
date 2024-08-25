@@ -1,13 +1,13 @@
-const { EmbedBuilder } = require('discord.js');
-const moment = require('moment-timezone');
-const Schedule = require('../models/Schedule');
-const AlarmSetting = require('../models/AlarmSetting');
+import { EmbedBuilder } from 'discord.js';
+import Schedule from '../models/Schedule.js';
+import AlarmSetting from '../models/AlarmSetting.js';
+import moment from 'moment-timezone';
 
-module.exports = {
+const ready = {
   name: 'ready',
   once: true,
   async execute(client) {
-    console.log(`Ready! Logged in as ${client.user.tag}`);
+    console.log(`Ready! OwO Logged in as ${client.user.tag}`);
 
     const schedules = await Schedule.find();
     schedules.forEach(async (schedule) => {
@@ -76,3 +76,5 @@ module.exports = {
     });
   },
 };
+
+export default ready;

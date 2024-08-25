@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const scheduleSchema = new mongoose.Schema({
   channelId: String,
@@ -9,4 +9,4 @@ const scheduleSchema = new mongoose.Schema({
   jobs: [String],
 });
 
-module.exports = mongoose.model('Schedule', scheduleSchema);
+export default mongoose.model('Schedule', scheduleSchema);

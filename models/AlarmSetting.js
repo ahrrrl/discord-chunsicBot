@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const alarmSettingSchema = new mongoose.Schema({
   channelId: String,
@@ -6,4 +6,4 @@ const alarmSettingSchema = new mongoose.Schema({
   time: String,
 });
 
-module.exports = mongoose.model('AlarmSetting', alarmSettingSchema);
+export default mongoose.model('AlarmSetting', alarmSettingSchema);
