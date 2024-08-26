@@ -2,6 +2,7 @@ import { EmbedBuilder } from 'discord.js';
 import Schedule from '../models/Schedule.js';
 import AlarmSetting from '../models/AlarmSetting.js';
 import moment from 'moment-timezone';
+import Server from '../models/Guild.js';
 
 const ready = {
   name: 'ready',
@@ -9,6 +10,22 @@ const ready = {
   async execute(client) {
     console.log(`Ready! OwO Logged in as ${client.user.tag}`);
 
+    // 봇을 등록한 서버들을 데이터베이스에 추가
+    const guilds = client.guilds.cache.map((guild) => ({
+      id: guild.id,
+      name: guild.name,
+      icon: guild.iconURL(),
+    }));
+
+    for (const guild of guilds) {
+      await Server.findOneAndUpdate(
+        { guildId: guild.id },
+        { guildId: guild.id, name: guild.name, icon: guild.icon },
+        { upsert: true, new: true }
+      );
+    }
+
+    // 일정 알람 재설정
     const schedules = await Schedule.find();
     schedules.forEach(async (schedule) => {
       const scheduleTime = moment.tz(

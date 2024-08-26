@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import readyEvent from './events/ready.js';
 import { deployCommands } from './deploy-commands.js';
+import guildDelete from './events/guildDelete.js';
 
 dotenv.config();
 
@@ -71,5 +72,7 @@ client.on('interactionCreate', async (interaction) => {
     });
   }
 });
+
+client.on(guildDelete.name, (...args) => guildDelete.execute(...args));
 
 client.login(process.env.DISCORD_TOKEN);
