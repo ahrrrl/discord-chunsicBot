@@ -74,7 +74,24 @@ export async function handleModalSubmit(interaction) {
   const mentionNames = mentions
     .split('@')
     .filter(Boolean)
-    .map((name) => name.trim()); // '@' 단위로 스플릿하고 빈 문자열 제거
+    .map((name) => name.trim());
+  const parsedMentions = [];
+  for (const mentionName of mentionNames) {
+    const name = mentionName;
+    const user = interaction.guild.members.cache.find(
+      (member) =>
+        member.user.username === name || member.user.globalName === name
+    );
+    const role = interaction.guild.roles.cache.find(
+      (role) => role.name === name
+    );
+    if (user) {
+      parsedMentions.push(`<@${user.id}>`); // 사용자 ID를 사용하여 멘션 생성
+    }
+    if (role) {
+      parsedMentions.push(`<@&${role.id}>`); // 역할 ID를 사용하여 멘션 생성
+    }
+  }
 
   // 날짜 형식 검증
   const dateRegex = /^(?:\d{1,2}-\d{1,2}|\d{4}-\d{1,2}-\d{1,2})$/;
@@ -125,7 +142,7 @@ export async function handleModalSubmit(interaction) {
     date: scheduleTime.format('YYYY-MM-DD'),
     time: scheduleTime.format('HH:mm'),
     content,
-    mentions: mentionNames,
+    mentions: parsedMentions,
   });
   await newSchedule.save();
 
@@ -149,24 +166,6 @@ export async function handleModalSubmit(interaction) {
           const channel = await interaction.client.channels.fetch(channelId);
 
           // 사용자 및 역할 멘션 파싱
-
-          const parsedMentions = [];
-          for (const mentionName of mentionNames) {
-            const name = mentionName.trim();
-            const user = interaction.guild.members.cache.find(
-              (member) =>
-                member.user.username === name || member.user.globalName === name
-            );
-            const role = interaction.guild.roles.cache.find(
-              (role) => role.name === name
-            );
-            if (user) {
-              parsedMentions.push(`<@${user.id}>`); // 사용자 ID를 사용하여 멘션 생성
-            }
-            if (role) {
-              parsedMentions.push(`<@&${role.id}>`); // 역할 ID를 사용하여 멘션 생성
-            }
-          }
 
           const embed = new EmbedBuilder()
             .setColor('#FFA500')
