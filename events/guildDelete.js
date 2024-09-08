@@ -6,6 +6,7 @@ import AlarmSetting from '../models/AlarmSetting.js';
 const guildDelete = {
   name: Events.GuildDelete,
   async execute(guild) {
+    console.log(guild);
     try {
       // 데이터베이스에서 해당 서버 정보 삭제
       await Guild.findOneAndDelete({ guildId: guild.id });
@@ -13,8 +14,8 @@ const guildDelete = {
         `서버 ${guild.name} (ID: ${guild.id})가 데이터베이스에서 삭제되었습니다.`
       );
 
-      await Schedule.deleteMany({ channelId: guild.id });
-      await AlarmSetting.deleteMany({ channelId: guild.id });
+      await Schedule.deleteMany({ channelId: guild.systemChannelId });
+      await AlarmSetting.deleteMany({ channelId: guild.systemChannelId });
       console.log(
         `서버 ${guild.name} (ID: ${guild.id})와 관련된 일정 및 알람 설정이 삭제되었습니다.`
       );
