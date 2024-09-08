@@ -7,10 +7,20 @@ import {
 } from 'discord.js';
 import Schedule from '../models/Schedule.js';
 import AlarmSetting from '../models/AlarmSetting.js';
+import { handleModalSubmit } from '../commands/일정.js';
 
 export default {
   name: Events.InteractionCreate,
   async execute(interaction) {
+    // 모달제출
+    if (interaction.isModalSubmit()) {
+      console.log('모달 제출 이벤트 감지됨'); // 디버그용 로그
+      if (interaction.customId === 'scheduleModal') {
+        console.log('scheduleModal 모달 제출'); // 디버그용 로그
+        await handleModalSubmit(interaction);
+      }
+    }
+    // 명령어제출
     if (interaction.isChatInputCommand()) {
       const command = interaction.client.commands.get(interaction.commandName);
 
@@ -24,7 +34,7 @@ export default {
       } catch (error) {
         console.error(error);
         await interaction.reply({
-          content: 'There was an error while executing this command!',
+          content: '명령어 실행 중 오류가 발생했습니다.',
           ephemeral: true,
         });
       }

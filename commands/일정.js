@@ -1,28 +1,68 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import {
+  ActionRowBuilder,
+  EmbedBuilder,
+  ModalBuilder,
+  SlashCommandBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+} from 'discord.js';
 import moment from 'moment-timezone';
 import Schedule from '../models/Schedule.js';
 import AlarmSetting from '../models/AlarmSetting.js';
 
 export const data = new SlashCommandBuilder()
   .setName('일정추가')
-  .setDescription('일정을 추가합니다.')
-  .addStringOption((option) =>
-    option
-      .setName('날짜')
-      .setDescription('일정 날짜 (MM-DD 또는 YYYY-MM-DD)')
-      .setRequired(true)
-  )
-  .addStringOption((option) =>
-    option.setName('시간').setDescription('일정 시간 (HH:MM)').setRequired(true)
-  )
-  .addStringOption((option) =>
-    option.setName('내용').setDescription('일정 내용').setRequired(true)
-  );
+  .setDescription('일정을 추가합니다.');
 
 export async function execute(interaction) {
-  let date = interaction.options.getString('날짜');
-  const time = interaction.options.getString('시간');
-  const content = interaction.options.getString('내용');
+  const modal = new ModalBuilder()
+    .setCustomId('scheduleModal')
+    .setTitle('일정 추가');
+
+  const dateInput = new TextInputBuilder()
+    .setCustomId('date')
+    .setLabel('일정 날짜 (MM-DD 또는 YYYY-MM-DD)')
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  const timeInput = new TextInputBuilder()
+    .setCustomId('time')
+    .setLabel('일정 시간 (HH:MM)')
+    .setStyle(TextInputStyle.Short)
+    .setRequired(true);
+
+  const contentInput = new TextInputBuilder()
+    .setCustomId('content')
+    .setLabel('일정 내용')
+    .setStyle(TextInputStyle.Paragraph)
+    .setRequired(true);
+
+  const mentionsInput = new TextInputBuilder()
+    .setCustomId('mentions')
+    .setLabel('멘션할 사용자 및 역할 (@사용자이름 @역할이름)')
+    .setStyle(TextInputStyle.Short)
+    .setRequired(false);
+
+  const firstActionRow = new ActionRowBuilder().addComponents(dateInput);
+  const secondActionRow = new ActionRowBuilder().addComponents(timeInput);
+  const thirdActionRow = new ActionRowBuilder().addComponents(contentInput);
+  const fourthActionRow = new ActionRowBuilder().addComponents(mentionsInput);
+
+  modal.addComponents(
+    firstActionRow,
+    secondActionRow,
+    thirdActionRow,
+    fourthActionRow
+  );
+
+  await interaction.showModal(modal);
+}
+
+export async function handleModalSubmit(interaction) {
+  const date = interaction.fields.getTextInputValue('date');
+  const time = interaction.fields.getTextInputValue('time');
+  const content = interaction.fields.getTextInputValue('content');
+  const mentions = interaction.fields.getTextInputValue('mentions') || '';
   const channelId = interaction.channelId;
 
   // 날짜 형식 검증
@@ -97,12 +137,24 @@ export async function execute(interaction) {
         setTimeout(async () => {
           const channel = await interaction.client.channels.fetch(channelId);
 
-          // 일정 내용에서 @사용자아이디 추출
-          const mentionRegex = /<@!?(\d+)>|<@&(\d+)>/g;
-          let mentions = [];
-          let match;
-          while ((match = mentionRegex.exec(content)) !== null) {
-            mentions.push(match[0]);
+          // 사용자 및 역할 멘션 파싱
+          const mentionNames = mentions.split('@').filter(Boolean); // '@' 단위로 스플릿하고 빈 문자열 제거
+          const parsedMentions = [];
+          for (const mentionName of mentionNames) {
+            const name = mentionName.trim();
+            const user = interaction.guild.members.cache.find(
+              (member) =>
+                member.user.username === name || member.user.globalName === name
+            );
+            const role = interaction.guild.roles.cache.find(
+              (role) => role.name === name
+            );
+            if (user) {
+              parsedMentions.push(`<@${user.id}>`); // 사용자 ID를 사용하여 멘션 생성
+            }
+            if (role) {
+              parsedMentions.push(`<@&${role.id}>`); // 역할 ID를 사용하여 멘션 생성
+            }
           }
 
           const embed = new EmbedBuilder()
@@ -114,7 +166,7 @@ export async function execute(interaction) {
               value: `${scheduleTime.format('YYYY-MM-DD HH:mm')}`,
             });
 
-          const userMentions = mentions.join(' ');
+          const userMentions = parsedMentions.join(' ');
           await channel.send({ content: userMentions, embeds: [embed] });
         }, delay);
       }
