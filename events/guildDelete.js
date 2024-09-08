@@ -1,5 +1,7 @@
 import { Events } from 'discord.js';
 import Guild from '../models/Guild.js';
+import Schedule from '../models/Schedule.js';
+import AlarmSetting from '../models/AlarmSetting.js';
 
 const guildDelete = {
   name: Events.GuildDelete,
@@ -13,6 +15,9 @@ const guildDelete = {
 
       await Schedule.deleteMany({ channelId: guild.id });
       await AlarmSetting.deleteMany({ channelId: guild.id });
+      console.log(
+        `서버 ${guild.name} (ID: ${guild.id})와 관련된 일정 및 알람 설정이 삭제되었습니다.`
+      );
     } catch (error) {
       console.error(
         `서버 ${guild.name} (ID: ${guild.id}) 삭제 중 오류 발생:`,
