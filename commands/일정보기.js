@@ -33,12 +33,11 @@ export async function execute(interaction) {
     });
 
   schedules.forEach((schedule, index) => {
-    const mentionsWithAt = schedule.mentions.map((mention) => `@${mention}`);
     embed.addFields({
       name: `일정 ${index + 1}`,
       value: `날짜: ${schedule.date}\n시간: ${schedule.time}\n내용: ${
         schedule.content
-      }\n멘션: ${mentionsWithAt.join(' ')}`,
+      }\n멘션: ${schedule.mentions.join(' ')}`,
     });
   });
 
