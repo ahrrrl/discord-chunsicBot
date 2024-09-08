@@ -15,6 +15,10 @@ export const data = new SlashCommandBuilder()
   .setDescription('일정을 추가합니다.');
 
 export async function execute(interaction) {
+  const now = moment().tz('Asia/Seoul'); // 시간대를 명시적으로 설정
+  const currentDate = now.format('YYYY-MM-DD'); // YYYY-MM-DD 형식의 현재 날짜
+  const currentTime = now.format('HH:mm'); // HH:MM 형식의 현재 시간
+
   const modal = new ModalBuilder()
     .setCustomId('scheduleModal')
     .setTitle('일정 추가');
@@ -23,13 +27,15 @@ export async function execute(interaction) {
     .setCustomId('date')
     .setLabel('일정 날짜 (MM-DD 또는 YYYY-MM-DD)')
     .setStyle(TextInputStyle.Short)
-    .setRequired(true);
+    .setRequired(true)
+    .setValue(currentDate);
 
   const timeInput = new TextInputBuilder()
     .setCustomId('time')
     .setLabel('일정 시간 (HH:MM)')
     .setStyle(TextInputStyle.Short)
-    .setRequired(true);
+    .setRequired(true)
+    .setValue(currentTime);
 
   const contentInput = new TextInputBuilder()
     .setCustomId('content')
@@ -64,6 +70,11 @@ export async function handleModalSubmit(interaction) {
   const content = interaction.fields.getTextInputValue('content');
   const mentions = interaction.fields.getTextInputValue('mentions') || '';
   const channelId = interaction.channelId;
+
+  const mentionNames = mentions
+    .split('@')
+    .filter(Boolean)
+    .map((name) => name.trim()); // '@' 단위로 스플릿하고 빈 문자열 제거
 
   // 날짜 형식 검증
   const dateRegex = /^(?:\d{1,2}-\d{1,2}|\d{4}-\d{1,2}-\d{1,2})$/;
@@ -114,7 +125,7 @@ export async function handleModalSubmit(interaction) {
     date: scheduleTime.format('YYYY-MM-DD'),
     time: scheduleTime.format('HH:mm'),
     content,
-    jobs: [],
+    mentions: mentionNames,
   });
   await newSchedule.save();
 
@@ -138,7 +149,7 @@ export async function handleModalSubmit(interaction) {
           const channel = await interaction.client.channels.fetch(channelId);
 
           // 사용자 및 역할 멘션 파싱
-          const mentionNames = mentions.split('@').filter(Boolean); // '@' 단위로 스플릿하고 빈 문자열 제거
+
           const parsedMentions = [];
           for (const mentionName of mentionNames) {
             const name = mentionName.trim();
@@ -160,7 +171,7 @@ export async function handleModalSubmit(interaction) {
           const embed = new EmbedBuilder()
             .setColor('#FFA500')
             .setTitle('⏰ 알람')
-            .setDescription(`일정 내용: ${content}`)
+            .setDescription(`${content}`)
             .addFields({
               name: '일정 시간',
               value: `${scheduleTime.format('YYYY-MM-DD HH:mm')}`,

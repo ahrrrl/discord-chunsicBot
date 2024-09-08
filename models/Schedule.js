@@ -6,7 +6,7 @@ const scheduleSchema = new mongoose.Schema({
   date: String,
   time: String,
   content: String,
-  jobs: [String],
+  mentions: [String],
 });
 
 export default mongoose.model('Schedule', scheduleSchema);

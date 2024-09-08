@@ -23,7 +23,5 @@ export async function execute(interaction) {
   const schedule = schedules[index - 1];
   await Schedule.findByIdAndDelete(schedule._id);
 
-  schedule.jobs.forEach((job) => job.stop());
-
   await interaction.reply('일정이 삭제되었습니다.');
 }

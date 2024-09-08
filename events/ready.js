@@ -69,7 +69,7 @@ const ready = {
               const embed = new EmbedBuilder()
                 .setColor('#FFA500')
                 .setTitle('⏰ 알람')
-                .setDescription(`일정 내용: ${content}`)
+                .setDescription(`${content}`)
                 .addFields({
                   name: '일정 시간',
                   value: `${scheduleTime.format('YYYY-MM-DD HH:mm')}`,
