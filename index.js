@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import readyEvent from './events/ready.js';
 import { deployCommands } from './deploy-commands.js';
 import guildDelete from './events/guildDelete.js';
+import interactionCreate from './events/interactionCreate.js';
 
 dotenv.config();
 
@@ -52,39 +53,9 @@ client.once(readyEvent.name, async () => {
   await deployCommands();
 });
 
-client.on('interactionCreate', async (interaction) => {
-  if (interaction.isCommand()) {
-    const command = client.commands.get(interaction.commandName);
-
-    if (!command) {
-      console.error(
-        `No command matching ${interaction.commandName} was found.`
-      );
-      return;
-    }
-
-    try {
-      await command.execute(interaction);
-    } catch (error) {
-      console.error(error);
-      await interaction.reply({
-        content: 'There was an error while executing this command!',
-        ephemeral: true,
-      });
-    }
-  } else if (interaction.isModalSubmit()) {
-    const { handleModalSubmit } = await import('./commands/일정.js');
-    try {
-      await handleModalSubmit(interaction);
-    } catch (error) {
-      console.error(error);
-      await interaction.reply({
-        content: 'There was an error while submitting the modal!',
-        ephemeral: true,
-      });
-    }
-  }
-});
+client.on(interactionCreate.name, (...args) =>
+  interactionCreate.execute(...args, client)
+);
 
 client.on(guildDelete.name, (...args) => guildDelete.execute(...args));
 
