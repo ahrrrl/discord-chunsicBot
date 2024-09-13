@@ -8,7 +8,7 @@ export const data = new SlashCommandBuilder()
     option
       .setName('타입')
       .setDescription(
-        '알람 타입 (당일알림: 일정날을 기준 또는 사전알림: 일정 시간을 기준)'
+        '알람 타입 (당일알림: 일정날을 기준 / 사전알림: 일정 시간을 기준)'
       )
       .setRequired(true)
       .addChoices(
