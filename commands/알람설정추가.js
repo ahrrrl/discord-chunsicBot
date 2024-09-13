@@ -7,7 +7,9 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName('타입')
-      .setDescription('알람 타입 (사전알림 또는 당일알림)')
+      .setDescription(
+        '알람 타입 (당일알림: 일정날을 기준 또는 사전알림: 일정 시간을 기준)'
+      )
       .setRequired(true)
       .addChoices(
         { name: '사전알림', value: 'before' },
@@ -18,13 +20,13 @@ export const data = new SlashCommandBuilder()
     option
       .setName('시간')
       .setDescription(
-        '알람 시간 (HH:MM) / 당일알림: 10시 30분에 알람을 원하면 10:30으로 입력 / 사전알림: 일정 한 시간 전에 알람을 원하면 1:00으로 입력'
+        '알람 시간 (HH:MM) / 당일알림: 일정 날 10시 30분에 알람을 원하면 10:30으로 입력 / 사전알림: 일정 한 시간 전에 알람을 원하면 1:00으로 입력'
       )
       .setRequired(true)
   );
 
 function isValidTime(time) {
-  const timeRegex = /^([0-6][0-9]|7[0-2]):([0-5][0-9])$/;
+  const timeRegex = /^([0-9]|[01][0-9]|2[0-3]):([0-5][0-9])$/;
   if (!timeRegex.test(time)) {
     return false;
   }
