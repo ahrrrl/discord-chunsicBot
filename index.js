@@ -8,6 +8,7 @@ import readyEvent from './events/ready.js';
 import { deployCommands } from './deploy-commands.js';
 import guildDelete from './events/guildDelete.js';
 import interactionCreate from './events/interactionCreate.js';
+import guildCreate from './events/guildCreate.js';
 
 dotenv.config();
 
@@ -58,7 +59,7 @@ client.once(readyEvent.name, async () => {
 client.on(interactionCreate.name, (...args) =>
   interactionCreate.execute(...args, client)
 );
-
+client.on(guildCreate.name, (...args) => guildCreate.execute(...args));
 client.on(guildDelete.name, (...args) => guildDelete.execute(...args));
 
 client.login(process.env.DISCORD_TOKEN);
