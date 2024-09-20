@@ -7,14 +7,14 @@ import {
 } from 'discord.js';
 import Schedule from '../models/Schedule.js';
 import AlarmSetting from '../models/AlarmSetting.js';
-import { handleModalSubmit } from '../commands/일정.js';
+import { handleScheduleModalSubmit } from './handleScheduleModalSubmit.js';
 
 export default {
   name: Events.InteractionCreate,
   async execute(interaction, client) {
     if (interaction.isModalSubmit()) {
       if (interaction.customId === 'scheduleModal') {
-        await handleModalSubmit(interaction);
+        await handleScheduleModalSubmit(interaction);
       } else if (interaction.customId === 'delete_alarm_modal') {
         await handleDeleteAlarmModal(interaction);
       } else if (interaction.customId === 'delete_schedule_modal') {
