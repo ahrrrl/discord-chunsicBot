@@ -36,15 +36,17 @@ const commandFiles = fs
   .readdirSync(commandsPath)
   .filter((file) => file.endsWith('.js'));
 
-for (const file of commandFiles) {
-  const filePath = `file://${path.join(commandsPath, file)}`;
-  const command = await import(filePath);
-  if ('data' in command && 'execute' in command) {
-    client.commands.set(command.data.name, command);
-  } else {
-    console.log(
-      `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
-    );
+async function loadCommands() {
+  for (const file of commandFiles) {
+    const filePath = `file://${path.join(commandsPath, file)}`;
+    const command = await import(filePath);
+    if ('data' in command && 'execute' in command) {
+      client.commands.set(command.data.name, command);
+    } else {
+      console.log(
+        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+      );
+    }
   }
 }
 
@@ -60,3 +62,5 @@ client.on(interactionCreate.name, (...args) =>
 client.on(guildDelete.name, (...args) => guildDelete.execute(...args));
 
 client.login(process.env.DISCORD_TOKEN);
+
+loadCommands();
