@@ -13,6 +13,11 @@ export async function handleDeleteScheduleModal(interaction) {
   }
 
   const schedule = schedules[index - 1];
+  if (schedule && schedule.timerId) {
+    const timerId = parseInt(schedule.timerId, 10);
+    clearTimeout(timerId);
+  }
+
   await Schedule.findByIdAndDelete(schedule._id);
 
   await interaction.reply({
