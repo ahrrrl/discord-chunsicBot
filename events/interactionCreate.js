@@ -8,7 +8,6 @@ import { showDeleteScheduleModal } from './showDeleteScheduleModal.js';
 export default {
   name: Events.InteractionCreate,
   async execute(interaction, client) {
-    // 모달 폼을 제출했을 때
     if (interaction.isModalSubmit()) {
       if (interaction.customId === 'scheduleModal') {
         await handleScheduleModalSubmit(interaction);
@@ -17,18 +16,24 @@ export default {
       } else if (interaction.customId === 'delete_schedule_modal') {
         await handleDeleteScheduleModal(interaction);
       }
-    }
-    // 채팅 입력으로 명령어를 입력했을 때
-    else if (interaction.isChatInputCommand()) {
+    } else if (interaction.isChatInputCommand()) {
       const command = client.commands.get(interaction.commandName);
 
       if (!command) {
         console.error(`Command not found: ${interaction.commandName}`);
         return;
       }
-    }
-    // 버튼을 클릭했을 때
-    else if (interaction.isButton()) {
+
+      try {
+        await command.execute(interaction);
+      } catch (error) {
+        console.error(error);
+        await interaction.reply({
+          content: '명령어 실행 중 오류가 발생했습니다.',
+          ephemeral: true,
+        });
+      }
+    } else if (interaction.isButton()) {
       const { customId } = interaction;
 
       if (customId === 'delete_alarm') {
