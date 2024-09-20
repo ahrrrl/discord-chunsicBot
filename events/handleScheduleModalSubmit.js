@@ -29,13 +29,22 @@ export async function handleScheduleModalSubmit(interaction) {
 
   const scheduleId = Date.now().toString();
 
-  await setAlarms(
+  const timerId = await setAlarms(
     interaction,
     channelId,
     scheduleId,
     scheduleTime,
     content,
     parsedMentions
+  );
+
+  await saveSchedule(
+    channelId,
+    scheduleId,
+    scheduleTime,
+    content,
+    parsedMentions,
+    timerId
   );
 
   await interaction.reply({
@@ -128,8 +137,8 @@ async function saveSchedule(
   await newSchedule.save();
 }
 
-async function setAlarms(
-  interaction,
+export async function setAlarms(
+  context, // interaction 또는 client 객체
   channelId,
   scheduleId,
   scheduleTime,
@@ -137,12 +146,14 @@ async function setAlarms(
   parsedMentions
 ) {
   const channelAlarms = await AlarmSetting.find({ channelId });
-  channelAlarms.forEach(async (alarm) => {
+  let timerId = null;
+
+  for (const alarm of channelAlarms) {
     const alarmTime = calculateAlarmTime(alarm, scheduleTime);
     if (alarmTime > moment()) {
       const delay = alarmTime.diff(moment());
-      const timerId = setTimeout(async () => {
-        const channel = await interaction.client.channels.fetch(channelId);
+      timerId = setTimeout(async () => {
+        const channel = await context.client.channels.fetch(channelId);
         const embed = createAlarmEmbed(content, scheduleTime);
         const userMentions = parsedMentions.join(' ');
         await channel.send({ content: userMentions, embeds: [embed] });
@@ -150,18 +161,10 @@ async function setAlarms(
         // 일정 자동 삭제 설정
         await setScheduleAutoDelete(channelId, scheduleId);
       }, delay);
-
-      // timerId를 함께 저장
-      await saveSchedule(
-        channelId,
-        scheduleId,
-        scheduleTime,
-        content,
-        parsedMentions,
-        timerId
-      );
     }
-  });
+  }
+
+  return timerId;
 }
 
 function calculateAlarmTime(alarm, scheduleTime) {
