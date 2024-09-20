@@ -3,6 +3,7 @@ import Schedule from '../models/Schedule.js';
 import { EmbedBuilder } from 'discord.js';
 import AlarmSetting from '../models/AlarmSetting.js';
 
+//수정점
 export async function handleScheduleModalSubmit(interaction) {
   const { date, time, content, mentions } = getModalValues(interaction);
   const channelId = interaction.channelId;
@@ -27,7 +28,9 @@ export async function handleScheduleModalSubmit(interaction) {
   }
 
   const scheduleId = Date.now().toString();
-  await saveSchedule(
+
+  await setAlarms(
+    interaction,
     channelId,
     scheduleId,
     scheduleTime,
@@ -35,22 +38,12 @@ export async function handleScheduleModalSubmit(interaction) {
     parsedMentions
   );
 
-  await setAlarms(
-    interaction,
-    channelId,
-    scheduleTime,
-    content,
-    parsedMentions
-  );
-
-  await setScheduleAutoDelete(channelId, scheduleId, scheduleTime);
-
   await interaction.reply({
     content: '일정이 추가되었습니다.',
     ephemeral: true,
   });
 }
-
+// 유틸리티 함수들
 function getModalValues(interaction) {
   return {
     date: interaction.fields.getTextInputValue('date'),
@@ -120,7 +113,8 @@ async function saveSchedule(
   scheduleId,
   scheduleTime,
   content,
-  parsedMentions
+  parsedMentions,
+  timerId
 ) {
   const newSchedule = new Schedule({
     channelId,
@@ -129,6 +123,7 @@ async function saveSchedule(
     time: scheduleTime.format('HH:mm'),
     content,
     mentions: parsedMentions,
+    timerId: timerId ? timerId : null,
   });
   await newSchedule.save();
 }
@@ -136,6 +131,7 @@ async function saveSchedule(
 async function setAlarms(
   interaction,
   channelId,
+  scheduleId,
   scheduleTime,
   content,
   parsedMentions
@@ -145,12 +141,25 @@ async function setAlarms(
     const alarmTime = calculateAlarmTime(alarm, scheduleTime);
     if (alarmTime > moment()) {
       const delay = alarmTime.diff(moment());
-      setTimeout(async () => {
+      const timerId = setTimeout(async () => {
         const channel = await interaction.client.channels.fetch(channelId);
         const embed = createAlarmEmbed(content, scheduleTime);
         const userMentions = parsedMentions.join(' ');
         await channel.send({ content: userMentions, embeds: [embed] });
+
+        // 일정 자동 삭제 설정
+        await setScheduleAutoDelete(channelId, scheduleId);
       }, delay);
+
+      // timerId를 함께 저장
+      await saveSchedule(
+        channelId,
+        scheduleId,
+        scheduleTime,
+        content,
+        parsedMentions,
+        timerId
+      );
     }
   });
 }
@@ -178,10 +187,7 @@ function createAlarmEmbed(content, scheduleTime) {
     });
 }
 
-async function setScheduleAutoDelete(channelId, scheduleId, scheduleTime) {
-  const deleteDelay = scheduleTime.diff(moment());
-  setTimeout(async () => {
-    await Schedule.findOneAndDelete({ channelId, scheduleId });
-    console.log(`일정 ${scheduleId}가 자동으로 삭제되었습니다.`);
-  }, deleteDelay);
+async function setScheduleAutoDelete(channelId, scheduleId) {
+  await Schedule.findOneAndDelete({ channelId, scheduleId });
+  console.log(`일정 ${scheduleId}가 자동으로 삭제되었습니다.`);
 }

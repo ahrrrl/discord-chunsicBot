@@ -7,6 +7,7 @@ const scheduleSchema = new mongoose.Schema({
   time: String,
   content: String,
   mentions: [String],
+  timerId: Number,
 });
 
 export default mongoose.model('Schedule', scheduleSchema);
