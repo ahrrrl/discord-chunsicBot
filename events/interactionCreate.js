@@ -1,13 +1,9 @@
-import {
-  Events,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  ActionRowBuilder,
-} from 'discord.js';
+import { Events } from 'discord.js';
 import { handleScheduleModalSubmit } from './handleScheduleModalSubmit.js';
 import { handleDeleteAlarmModal } from './handleDeleteAlarmModal.js';
 import { handleDeleteScheduleModal } from './handleDeleteScheduleModal.js';
+import { showDeleteAlarmModal } from './showDeleteAlarmModal.js';
+import { showDeleteScheduleModal } from './showDeleteScheduleModal.js';
 
 export default {
   name: Events.InteractionCreate,
@@ -48,35 +44,3 @@ export default {
     }
   },
 };
-
-async function showDeleteAlarmModal(interaction) {
-  const modal = new ModalBuilder()
-    .setCustomId('delete_alarm_modal')
-    .setTitle('알람 삭제');
-
-  const indexInput = new TextInputBuilder()
-    .setCustomId('index')
-    .setLabel('삭제할 알람의 인덱스 번호를 입력하세요')
-    .setStyle(TextInputStyle.Short);
-
-  const actionRow = new ActionRowBuilder().addComponents(indexInput);
-  modal.addComponents(actionRow);
-
-  await interaction.showModal(modal);
-}
-
-async function showDeleteScheduleModal(interaction) {
-  const modal = new ModalBuilder()
-    .setCustomId('delete_schedule_modal')
-    .setTitle('일정 삭제');
-
-  const indexInput = new TextInputBuilder()
-    .setCustomId('index')
-    .setLabel('삭제할 일정의 인덱스 번호를 입력하세요')
-    .setStyle(TextInputStyle.Short);
-
-  const actionRow = new ActionRowBuilder().addComponents(indexInput);
-  modal.addComponents(actionRow);
-
-  await interaction.showModal(modal);
-}
