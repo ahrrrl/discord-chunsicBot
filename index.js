@@ -1,7 +1,4 @@
 import { Client, GatewayIntentBits, Collection } from 'discord.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import readyEvent from './events/ready.js';
@@ -9,6 +6,7 @@ import { deployCommands } from './deploy-commands.js';
 import guildDelete from './events/guildDelete.js';
 import interactionCreate from './events/interactionCreate.js';
 import guildCreate from './events/guildCreate.js';
+import { loadCommandFiles } from './utils/loadCommandFiles.js';
 
 dotenv.config();
 
@@ -23,31 +21,21 @@ mongoose
     console.error('Error connecting to MongoDB:', error);
   });
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
 client.commands = new Collection();
 
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs
-  .readdirSync(commandsPath)
-  .filter((file) => file.endsWith('.js'));
-
 async function loadCommands() {
-  for (const file of commandFiles) {
-    const filePath = `file://${path.join(commandsPath, file)}`;
-    const command = await import(filePath);
-    if ('data' in command && 'execute' in command) {
+  try {
+    const commands = await loadCommandFiles();
+    for (const command of commands) {
       client.commands.set(command.data.name, command);
-    } else {
-      console.log(
-        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
-      );
     }
+    console.log(`Loaded ${client.commands.size} commands.`);
+  } catch (error) {
+    console.error('Error loading commands:', error);
   }
 }
 
