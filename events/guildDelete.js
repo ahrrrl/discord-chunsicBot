@@ -17,7 +17,7 @@ const guildDelete = {
       await Schedule.deleteMany({ channelId: guild.systemChannelId });
       await AlarmSetting.deleteMany({ channelId: guild.systemChannelId });
       console.log(
-        `서버 ${guild.name} (ID: ${guild.id})와 관련된 일정 및 알람 설정이 삭제되었습니다.`
+        `서버 ${guild.name} (ID: ${guild.id})와 관련된 일정 및 알람규칙이 삭제되었습니다.`
       );
     } catch (error) {
       console.error(

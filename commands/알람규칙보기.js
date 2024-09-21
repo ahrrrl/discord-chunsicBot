@@ -8,8 +8,8 @@ import {
 import AlarmSetting from '../models/AlarmSetting.js';
 
 export const data = new SlashCommandBuilder()
-  .setName('알람설정보기')
-  .setDescription('설정된 알람을 확인합니다.');
+  .setName('알람규칙보기')
+  .setDescription('알람규칙을 확인합니다.');
 
 export async function execute(interaction) {
   const channelId = interaction.channelId;
@@ -17,14 +17,14 @@ export async function execute(interaction) {
 
   if (!channelAlarms || channelAlarms.length === 0) {
     return interaction.reply({
-      content: '현재 설정된 알람이 없습니다.',
+      content: '현재 설정된 알람규칙이 없습니다.',
       ephemeral: true,
     });
   }
 
   const embed = new EmbedBuilder()
     .setColor('#00FF00')
-    .setTitle('🔔 설정된 알람')
+    .setTitle('🔔 알람규칙')
     .setTimestamp()
     .setFooter({
       text: '춘식이봇',

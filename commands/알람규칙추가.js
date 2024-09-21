@@ -2,8 +2,10 @@ import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import AlarmSetting from '../models/AlarmSetting.js';
 
 export const data = new SlashCommandBuilder()
-  .setName('알람설정추가')
-  .setDescription('일정 알람을 추가합니다(기존 일정에는 적용되지 않습니다).')
+  .setName('알람규칙추가')
+  .setDescription(
+    '알람규칙을 추가합니다(규칙이 있기전 일정에는 적용되지 않습니다).'
+  )
   .addStringOption((option) =>
     option
       .setName('타입')
@@ -59,8 +61,8 @@ export async function execute(interaction) {
 
   const embed = new EmbedBuilder()
     .setColor('#00FF00')
-    .setTitle('🔔 알람 설정 추가')
-    .setDescription('새로운 알람 설정이 추가되었습니다.')
+    .setTitle('🔔 알람규칙 추가')
+    .setDescription('새로운 알람 규칙이 추가되었습니다.')
     .addFields(
       {
         name: '알람 타입',
