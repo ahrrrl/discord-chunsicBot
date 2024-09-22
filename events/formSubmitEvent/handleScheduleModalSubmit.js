@@ -1,7 +1,7 @@
 import moment from 'moment-timezone';
-import Schedule from '../models/Schedule.js';
 import { EmbedBuilder } from 'discord.js';
-import AlarmSetting from '../models/AlarmSetting.js';
+import AlarmSetting from '../../models/AlarmSetting.js';
+import Schedule from '../../models/Schedule.js';
 
 //수정점
 export async function handleScheduleModalSubmit(interaction) {

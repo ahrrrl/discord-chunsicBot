@@ -1,7 +1,7 @@
 import Schedule from '../models/Schedule.js';
 import moment from 'moment-timezone';
 import Server from '../models/Guild.js';
-import { setAlarms } from './handleScheduleModalSubmit.js';
+import { setAlarms } from './formSubmitEvent/handleScheduleModalSubmit.js';
 
 const ready = {
   name: 'ready',

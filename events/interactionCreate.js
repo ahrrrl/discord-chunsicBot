@@ -1,9 +1,9 @@
 import { Events } from 'discord.js';
-import { handleScheduleModalSubmit } from './handleScheduleModalSubmit.js';
-import { handleDeleteAlarmModal } from './handleDeleteAlarmModal.js';
-import { handleDeleteScheduleModal } from './handleDeleteScheduleModal.js';
-import { showDeleteAlarmModal } from './showDeleteAlarmModal.js';
-import { showDeleteScheduleModal } from './showDeleteScheduleModal.js';
+import { showDeleteAlarmModal } from './buttonEvents/showDeleteAlarmModal.js';
+import { showDeleteScheduleModal } from './buttonEvents/showDeleteScheduleModal.js';
+import { handleScheduleModalSubmit } from './formSubmitEvent/handleScheduleModalSubmit.js';
+import { handleDeleteAlarmModal } from './formSubmitEvent/handleDeleteAlarmModal.js';
+import { handleDeleteScheduleModal } from './formSubmitEvent/handleDeleteScheduleModal.js';
 
 export default {
   name: Events.InteractionCreate,
@@ -35,7 +35,6 @@ export default {
       }
     } else if (interaction.isButton()) {
       const { customId } = interaction;
-
       if (customId === 'delete_alarm') {
         await showDeleteAlarmModal(interaction);
       } else if (customId === 'delete_schedule') {

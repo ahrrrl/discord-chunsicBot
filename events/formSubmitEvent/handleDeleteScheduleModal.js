@@ -1,4 +1,4 @@
-import Schedule from '../models/Schedule.js';
+import Schedule from '../../models/Schedule.js';
 
 export async function handleDeleteScheduleModal(interaction) {
   const index = parseInt(interaction.fields.getTextInputValue('index'), 10);

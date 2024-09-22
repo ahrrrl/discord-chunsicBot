@@ -1,4 +1,4 @@
-import AlarmSetting from '../models/AlarmSetting.js';
+import AlarmSetting from '../../models/AlarmSetting.js';
 
 export async function handleDeleteAlarmModal(interaction) {
   const index = parseInt(interaction.fields.getTextInputValue('index'), 10);
