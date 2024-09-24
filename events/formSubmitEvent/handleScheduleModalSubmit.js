@@ -7,6 +7,7 @@ import Schedule from '../../models/Schedule.js';
 export async function handleScheduleModalSubmit(interaction) {
   const { date, time, content, mentions } = getModalValues(interaction);
   const channelId = interaction.channelId;
+  const guildId = interaction.guildId;
 
   const parsedMentions = await parseMentions(interaction, mentions);
 
@@ -39,6 +40,7 @@ export async function handleScheduleModalSubmit(interaction) {
   );
 
   await saveSchedule(
+    guildId,
     channelId,
     scheduleId,
     scheduleTime,
@@ -118,6 +120,7 @@ function isValidScheduleTime(scheduleTime) {
 }
 
 async function saveSchedule(
+  guildId,
   channelId,
   scheduleId,
   scheduleTime,
@@ -126,6 +129,7 @@ async function saveSchedule(
   timerId
 ) {
   const newSchedule = new Schedule({
+    guildId,
     channelId,
     scheduleId,
     date: scheduleTime.format('YYYY-MM-DD'),

@@ -14,8 +14,8 @@ const guildDelete = {
         `서버 ${guild.name} (ID: ${guild.id})가 데이터베이스에서 삭제되었습니다.`
       );
 
-      await Schedule.deleteMany({ channelId: guild.systemChannelId });
-      await AlarmSetting.deleteMany({ channelId: guild.systemChannelId });
+      await Schedule.deleteMany({ guildId: guild.Id });
+      await AlarmSetting.deleteMany({ guildId: guild.Id });
       console.log(
         `서버 ${guild.name} (ID: ${guild.id})와 관련된 일정 및 알람규칙이 삭제되었습니다.`
       );

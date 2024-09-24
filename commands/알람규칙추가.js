@@ -40,6 +40,7 @@ export async function execute(interaction) {
   const type = interaction.options.getString('타입');
   const time = interaction.options.getString('시간');
   const channelId = interaction.channelId;
+  const guildId = interaction.guildId;
 
   if (!isValidTime(time)) {
     await interaction.reply({
@@ -51,6 +52,7 @@ export async function execute(interaction) {
   }
 
   const newAlarmSetting = new AlarmSetting({
+    guildId,
     channelId,
     type,
     time,

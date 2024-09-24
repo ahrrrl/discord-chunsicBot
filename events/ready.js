@@ -44,6 +44,7 @@ const ready = {
         'Asia/Seoul'
       );
 
+      const guildId = schedule.guildId;
       const channelId = schedule.channelId;
       const content = schedule.content;
       const parsedMentions = schedule.mentions;
@@ -57,6 +58,7 @@ const ready = {
 
       await setAlarms(
         { client }, // interaction 객체 대신 client 객체 전달
+        guildId,
         channelId,
         schedule.scheduleId,
         scheduleTime,

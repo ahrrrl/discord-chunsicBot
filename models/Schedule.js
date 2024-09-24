@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const scheduleSchema = new mongoose.Schema({
+  guildId: String,
   channelId: String,
   scheduleId: String,
   date: String,
