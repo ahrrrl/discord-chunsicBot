@@ -48,6 +48,13 @@ const ready = {
       const content = schedule.content;
       const parsedMentions = schedule.mentions;
 
+      // 현재 시간보다 이전인 알람 삭제
+      if (scheduleTime.isBefore(moment())) {
+        await Schedule.findByIdAndDelete(schedule._id);
+        console.log(`지난 일정 ${schedule.scheduleId}가 삭제되었습니다.`);
+        return;
+      }
+
       await setAlarms(
         { client }, // interaction 객체 대신 client 객체 전달
         channelId,
