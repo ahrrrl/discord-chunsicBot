@@ -6,7 +6,6 @@ import AlarmSetting from '../models/AlarmSetting.js';
 const guildDelete = {
   name: Events.GuildDelete,
   async execute(guild) {
-    console.log(guild);
     try {
       // 데이터베이스에서 해당 서버 정보 삭제
       await Guild.findOneAndDelete({ guildId: guild.id });
