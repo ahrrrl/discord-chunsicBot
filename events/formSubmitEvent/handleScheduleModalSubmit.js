@@ -3,7 +3,6 @@ import { EmbedBuilder } from 'discord.js';
 import AlarmSetting from '../../models/AlarmSetting.js';
 import Schedule from '../../models/Schedule.js';
 
-//수정점
 export async function handleScheduleModalSubmit(interaction) {
   const { date, time, content, mentions } = getModalValues(interaction);
   const channelId = interaction.channelId;
@@ -29,6 +28,15 @@ export async function handleScheduleModalSubmit(interaction) {
   }
 
   const scheduleId = Date.now().toString();
+  const channelAlarms = await AlarmSetting.find({ channelId });
+
+  if (!channelAlarms || channelAlarms.length === 0) {
+    return interaction.reply({
+      content:
+        '"/알람규칙추가"로 규칙을 하나 이상 먼저 설정해주세요. [참고 링크](https://chunsic-bot.vercel.app/docs/schedule-management)',
+      ephemeral: true,
+    });
+  }
 
   const timerId = await setAlarms(
     interaction,
@@ -54,7 +62,59 @@ export async function handleScheduleModalSubmit(interaction) {
     ephemeral: true,
   });
 }
-// 유틸리티 함수들
+
+export async function setAlarms(
+  context,
+  channelId,
+  scheduleId,
+  scheduleTime,
+  content,
+  parsedMentions
+) {
+  const channelAlarms = await AlarmSetting.find({ channelId });
+  let timerId = null;
+
+  for (const alarm of channelAlarms) {
+    const alarmTime = calculateAlarmTime(alarm, scheduleTime);
+    if (alarmTime > moment()) {
+      const delay = alarmTime.diff(moment());
+      timerId = setTimeout(async () => {
+        const channel = await context.client.channels.fetch(channelId);
+        const embed = createAlarmEmbed(content, scheduleTime);
+        const userMentions = parsedMentions.join(' ');
+        await channel.send({ content: userMentions, embeds: [embed] });
+
+        await setScheduleAutoDelete(channelId, scheduleId);
+      }, delay);
+    }
+  }
+
+  return timerId;
+}
+
+async function saveSchedule(
+  guildId,
+  channelId,
+  scheduleId,
+  scheduleTime,
+  content,
+  parsedMentions,
+  timerId
+) {
+  const newSchedule = new Schedule({
+    guildId,
+    channelId,
+    scheduleId,
+    date: scheduleTime.format('YYYY-MM-DD'),
+    time: scheduleTime.format('HH:mm'),
+    content,
+    mentions: parsedMentions,
+    timerId: timerId ? timerId : null,
+  });
+  await newSchedule.save();
+}
+
+// Utility functions
 function getModalValues(interaction) {
   return {
     date: interaction.fields.getTextInputValue('date'),
@@ -117,58 +177,6 @@ function isValidScheduleTime(scheduleTime) {
   const now = moment().tz('Asia/Seoul');
   const maxAllowedTime = now.clone().add(1, 'month');
   return scheduleTime > now && scheduleTime <= maxAllowedTime;
-}
-
-async function saveSchedule(
-  guildId,
-  channelId,
-  scheduleId,
-  scheduleTime,
-  content,
-  parsedMentions,
-  timerId
-) {
-  const newSchedule = new Schedule({
-    guildId,
-    channelId,
-    scheduleId,
-    date: scheduleTime.format('YYYY-MM-DD'),
-    time: scheduleTime.format('HH:mm'),
-    content,
-    mentions: parsedMentions,
-    timerId: timerId ? timerId : null,
-  });
-  await newSchedule.save();
-}
-
-export async function setAlarms(
-  context, // interaction 또는 client 객체
-  channelId,
-  scheduleId,
-  scheduleTime,
-  content,
-  parsedMentions
-) {
-  const channelAlarms = await AlarmSetting.find({ channelId });
-  let timerId = null;
-
-  for (const alarm of channelAlarms) {
-    const alarmTime = calculateAlarmTime(alarm, scheduleTime);
-    if (alarmTime > moment()) {
-      const delay = alarmTime.diff(moment());
-      timerId = setTimeout(async () => {
-        const channel = await context.client.channels.fetch(channelId);
-        const embed = createAlarmEmbed(content, scheduleTime);
-        const userMentions = parsedMentions.join(' ');
-        await channel.send({ content: userMentions, embeds: [embed] });
-
-        // 일정 자동 삭제 설정
-        await setScheduleAutoDelete(channelId, scheduleId);
-      }, delay);
-    }
-  }
-
-  return timerId;
 }
 
 function calculateAlarmTime(alarm, scheduleTime) {
